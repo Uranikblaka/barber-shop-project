@@ -1,0 +1,116 @@
+[
+  {
+    "id": "prod_premium_pomade",
+    "name": "Premium Hold Pomade",
+    "description": "Water-based pomade with strong hold and natural shine. Perfect for classic and modern styles.",
+    "price": 28,
+    "originalPrice": 35,
+    "category": "Pomade",
+    "brand": "Gentleman's Choice",
+    "image": "https://images.pexels.com/photos/3618110/pexels-photo-3618110.jpeg",
+    "images": [
+      "https://images.pexels.com/photos/3618110/pexels-photo-3618110.jpeg",
+      "https://images.pexels.com/photos/3618112/pexels-photo-3618112.jpeg"
+    ],
+    "inStock": true,
+    "stockCount": 24,
+    "rating": 4.8,
+    "reviewCount": 156,
+    "featured": true,
+    "ingredients": ["Aqua", "Beeswax", "Petrolatum", "Lanolin", "Fragrance"],
+    "howToUse": "Apply to damp or dry hair. Work through with fingers or comb for desired style."
+  },
+  {
+    "id": "prod_clay_texture",
+    "name": "Matte Clay Texture",
+    "description": "Medium hold styling clay with matte finish. Ideal for textured, natural-looking styles.",
+    "price": 32,
+    "category": "Clay",
+    "brand": "Urban Barber",
+    "image": "https://images.pexels.com/photos/3618164/pexels-photo-3618164.jpeg",
+    "images": [
+      "https://images.pexels.com/photos/3618164/pexels-photo-3618164.jpeg"
+    ],
+    "inStock": true,
+    "stockCount": 18,
+    "rating": 4.6,
+    "reviewCount": 89,
+    "featured": true,
+    "ingredients": ["Kaolin Clay", "Beeswax", "Coconut Oil", "Essential Oils"],
+    "howToUse": "Rub between palms and work through dry hair for texture and hold."
+  },
+  {
+    "id": "prod_daily_shampoo",
+    "name": "Daily Strength Shampoo",
+    "description": "Gentle daily shampoo that cleanses and strengthens hair without stripping natural oils.",
+    "price": 24,
+    "category": "Shampoo",
+    "brand": "Classic Care",
+    "image": "https://images.pexels.com/photos/3618067/pexels-photo-3618067.jpeg",
+    "images": [
+      "https://images.pexels.com/photos/3618067/pexels-photo-3618067.jpeg"
+    ],
+    "inStock": true,
+    "stockCount": 32,
+    "rating": 4.5,
+    "reviewCount": 203,
+    "featured": false,
+    "ingredients": ["Coconut-derived cleansers", "Argan oil", "Vitamin E", "Keratin"],
+    "howToUse": "Apply to wet hair, massage gently, rinse thoroughly."
+  },
+  {
+    "id": "prod_beard_oil",
+    "name": "Premium Beard Oil",
+    "description": "Nourishing blend of oils to soften, condition, and add shine to your beard.",
+    "price": 22,
+    "category": "Beard Care",
+    "brand": "Beard Master",
+    "image": "https://images.pexels.com/photos/3618162/pexels-photo-3618162.jpeg",
+    "images": [
+      "https://images.pexels.com/photos/3618162/pexels-photo-3618162.jpeg"
+    ],
+    "inStock": true,
+    "stockCount": 28,
+    "rating": 4.9,
+    "reviewCount": 124,
+    "featured": true,
+    "ingredients": ["Jojoba oil", "Argan oil", "Sweet almond oil", "Essential oils"],
+    "howToUse": "Apply 3-5 drops to clean, damp beard. Massage evenly through hair."
+  },
+  {
+    "id": "prod_styling_comb",
+    "name": "Professional Styling Comb",
+    "description": "High-quality carbon fiber comb for precise styling and parting.",
+    "price": 18,
+    "category": "Tools",
+    "brand": "Pro Tools",
+    "image": "https://images.pexels.com/photos/3618157/pexels-photo-3618157.jpeg",
+    "images": [
+      "https://images.pexels.com/photos/3618157/pexels-photo-3618157.jpeg"
+    ],
+    "inStock": true,
+    "stockCount": 15,
+    "rating": 4.4,
+    "reviewCount": 67,
+    "featured": false
+  },
+  {
+    "id": "prod_conditioner",
+    "name": "Hydrating Conditioner",
+    "description": "Deep conditioning treatment that moisturizes and detangles for healthier hair.",
+    "price": 26,
+    "category": "Conditioner",
+    "brand": "Classic Care",
+    "image": "https://images.pexels.com/photos/3618068/pexels-photo-3618068.jpeg",
+    "images": [
+      "https://images.pexels.com/photos/3618068/pexels-photo-3618068.jpeg"
+    ],
+    "inStock": false,
+    "stockCount": 0,
+    "rating": 4.3,
+    "reviewCount": 145,
+    "featured": false,
+    "ingredients": ["Shea butter", "Coconut oil", "Aloe vera", "Protein complex"],
+    "howToUse": "Apply after shampooing, leave for 2-3 minutes, then rinse."
+  }
+]

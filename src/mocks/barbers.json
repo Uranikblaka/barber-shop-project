@@ -1,0 +1,62 @@
+[
+  {
+    "id": "barber_marcus",
+    "name": "Marcus Johnson",
+    "title": "Master Barber & Owner",
+    "bio": "With over 15 years of experience, Marcus specializes in classic cuts and modern styling techniques.",
+    "avatar": "https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg",
+    "specialties": ["Classic Cuts", "Beard Styling", "Hot Towel Shaves"],
+    "rating": 4.9,
+    "yearsExperience": 15,
+    "featured": true,
+    "workingHours": {
+      "monday": { "start": "09:00", "end": "18:00" },
+      "tuesday": { "start": "09:00", "end": "18:00" },
+      "wednesday": { "start": "09:00", "end": "18:00" },
+      "thursday": { "start": "09:00", "end": "18:00" },
+      "friday": { "start": "09:00", "end": "19:00" },
+      "saturday": { "start": "08:00", "end": "17:00" },
+      "sunday": null
+    }
+  },
+  {
+    "id": "barber_david",
+    "name": "David Chen",
+    "title": "Senior Barber",
+    "bio": "David brings precision and artistry to every cut, specializing in modern fades and contemporary styles.",
+    "avatar": "https://images.pexels.com/photos/1212984/pexels-photo-1212984.jpeg",
+    "specialties": ["Modern Fades", "Precision Cuts", "Hair Styling"],
+    "rating": 4.8,
+    "yearsExperience": 8,
+    "featured": true,
+    "workingHours": {
+      "monday": null,
+      "tuesday": { "start": "10:00", "end": "19:00" },
+      "wednesday": { "start": "10:00", "end": "19:00" },
+      "thursday": { "start": "10:00", "end": "19:00" },
+      "friday": { "start": "10:00", "end": "19:00" },
+      "saturday": { "start": "09:00", "end": "18:00" },
+      "sunday": { "start": "10:00", "end": "16:00" }
+    }
+  },
+  {
+    "id": "barber_antonio",
+    "name": "Antonio Rivera",
+    "title": "Barber Stylist",
+    "bio": "Antonio's creative approach and attention to detail make him perfect for clients seeking bold, trendy looks.",
+    "avatar": "https://images.pexels.com/photos/1516680/pexels-photo-1516680.jpeg",
+    "specialties": ["Creative Styling", "Color Consultation", "Trendy Cuts"],
+    "rating": 4.7,
+    "yearsExperience": 6,
+    "featured": true,
+    "workingHours": {
+      "monday": { "start": "09:00", "end": "17:00" },
+      "tuesday": { "start": "09:00", "end": "17:00" },
+      "wednesday": null,
+      "thursday": { "start": "09:00", "end": "17:00" },
+      "friday": { "start": "09:00", "end": "18:00" },
+      "saturday": { "start": "08:00", "end": "16:00" },
+      "sunday": null
+    }
+  }
+]

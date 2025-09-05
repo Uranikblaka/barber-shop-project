@@ -1,0 +1,62 @@
+[
+  {
+    "id": "svc_signature_cut",
+    "name": "Signature Cut",
+    "description": "Our flagship haircut service featuring consultation, precision cutting, and styling with premium products.",
+    "durationMin": 45,
+    "price": 65,
+    "category": "Haircut",
+    "image": "https://images.pexels.com/photos/1813272/pexels-photo-1813272.jpeg",
+    "featured": true
+  },
+  {
+    "id": "svc_beard_trim",
+    "name": "Beard Trim & Shape",
+    "description": "Professional beard trimming and shaping to complement your facial structure.",
+    "durationMin": 30,
+    "price": 35,
+    "category": "Beard",
+    "image": "https://images.pexels.com/photos/1319460/pexels-photo-1319460.jpeg",
+    "featured": true
+  },
+  {
+    "id": "svc_hot_towel_shave",
+    "name": "Hot Towel Shave",
+    "description": "Traditional hot towel shave with pre-shave oil, lather, and aftercare treatment.",
+    "durationMin": 40,
+    "price": 55,
+    "category": "Shave",
+    "image": "https://images.pexels.com/photos/3618162/pexels-photo-3618162.jpeg",
+    "featured": true
+  },
+  {
+    "id": "svc_buzz_cut",
+    "name": "Buzz Cut",
+    "description": "Clean, precise buzz cut with your choice of guard length.",
+    "durationMin": 20,
+    "price": 25,
+    "category": "Haircut",
+    "image": "https://images.pexels.com/photos/1570807/pexels-photo-1570807.jpeg",
+    "featured": false
+  },
+  {
+    "id": "svc_beard_oil_treatment",
+    "name": "Beard Oil Treatment",
+    "description": "Nourishing beard treatment with premium oils and conditioning.",
+    "durationMin": 25,
+    "price": 30,
+    "category": "Treatment",
+    "image": "https://images.pexels.com/photos/3618164/pexels-photo-3618164.jpeg",
+    "featured": false
+  },
+  {
+    "id": "svc_hair_wash_style",
+    "name": "Hair Wash & Style",
+    "description": "Professional wash with premium products and styling.",
+    "durationMin": 35,
+    "price": 45,
+    "category": "Styling",
+    "image": "https://images.pexels.com/photos/1570810/pexels-photo-1570810.jpeg",
+    "featured": false
+  }
+]
