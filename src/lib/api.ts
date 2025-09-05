@@ -1,140 +1,315 @@
-// Mock API client with simulated latency and error handling
-import type { Service, Barber, Product, Booking, Order, Customer, Review } from '../types';
-import { services } from '../mocks/services';
-import { barbers } from '../mocks/barbers';
-import { products } from '../mocks/products';
-import { bookings } from '../mocks/bookings';
-import { orders } from '../mocks/orders';
-import { customers } from '../mocks/customers';
-import { reviews } from '../mocks/reviews';
+// Real API client for backend integration
+import type { Service, Barber, Product, Booking, Order, Customer, Review, AuthResponse, LoginCredentials, RegisterCredentials, User, Appointment, CreateAppointmentData, UpdateAppointmentData } from '../types';
+import { ENV_CONFIG } from '../config/environment';
 
-const SIMULATED_DELAY = 800;
-const ERROR_RATE = 0.05; // 5% chance of error for testing
+// Your backend returns data directly, not wrapped in a response object
+// So we'll handle both formats for flexibility
 
-function simulateNetworkDelay(ms: number = SIMULATED_DELAY): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+interface ApiError {
+  message: string;
+  status: number;
+  details?: any;
 }
 
-function maybeThrowError(action: string) {
-  if (Math.random() < ERROR_RATE) {
-    throw new Error(`Network error during ${action}`);
+class ApiError extends Error {
+  status: number;
+  details?: any;
+
+  constructor(message: string, status: number, details?: any) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.details = details;
+  }
+}
+
+// Global auth state management
+let authState: { token: string | null; user: any } = { token: null, user: null };
+
+// Function to update auth state from outside
+export const setAuthState = (token: string | null, user: any) => {
+  authState = { token, user };
+};
+
+// Function to clear auth state
+export const clearAuthState = () => {
+  authState = { token: null, user: null };
+  localStorage.removeItem('auth_token');
+  localStorage.removeItem('auth_user');
+};
+
+// Function to handle auth errors
+const handleAuthError = (error: ApiError) => {
+  if (error.status === 401 || error.status === 403) {
+    // Token is invalid or expired, clear auth state
+    clearAuthState();
+    // Redirect to login if not already there
+    if (window.location.pathname !== '/login') {
+      window.location.href = '/login';
+    }
+  }
+};
+
+async function apiRequest<T>(
+  endpoint: string,
+  options: RequestInit = {},
+  retryCount = 0
+): Promise<T> {
+  const url = `${ENV_CONFIG.API_BASE_URL}${endpoint}`;
+  
+  const defaultHeaders: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  // Add authorization header if token exists
+  const token = authState.token || localStorage.getItem('auth_token');
+  if (token) {
+    defaultHeaders['Authorization'] = `Bearer ${token}`;
+  }
+
+  const config: RequestInit = {
+    ...options,
+    headers: {
+      ...defaultHeaders,
+      ...options.headers,
+    },
+  };
+
+  // Add timeout
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), ENV_CONFIG.API_TIMEOUT);
+  config.signal = controller.signal;
+
+  try {
+    const response = await fetch(url, config);
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const apiError = new ApiError(
+        errorData.message || `HTTP ${response.status}: ${response.statusText}`,
+        response.status,
+        errorData
+      );
+      
+      // Handle authentication errors
+      handleAuthError(apiError);
+      throw apiError;
+    }
+
+    const data = await response.json();
+    
+    // Handle both wrapped and direct response formats
+    if (data && typeof data === 'object' && 'data' in data) {
+      // Wrapped format: { data: [...], message: "...", success: true }
+      return data.data;
+    } else {
+      // Direct format: [...] (your current backend format)
+      return data;
+    }
+  } catch (error) {
+    clearTimeout(timeoutId);
+    
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    
+    // Retry logic for network errors
+    if (retryCount < 3 && 
+        (error instanceof Error && error.name === 'AbortError' || 
+         error instanceof TypeError)) {
+      console.warn(`API request failed, retrying... (${retryCount + 1}/3)`);
+      await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1))); // Exponential backoff
+      return apiRequest<T>(endpoint, options, retryCount + 1);
+    }
+    
+    // Network or other errors
+    throw new ApiError(
+      error instanceof Error ? error.message : 'Network error occurred',
+      0,
+      error
+    );
   }
 }
 
 export const apiClient = {
-  // Services
+  // Services - Full CRUD operations
   async getServices(): Promise<Service[]> {
-    await simulateNetworkDelay();
-    maybeThrowError('getServices');
-    return services;
+    return apiRequest<Service[]>('/services');
   },
 
-  async getService(id: string): Promise<Service | undefined> {
-    await simulateNetworkDelay();
-    maybeThrowError('getService');
-    return services.find(s => s.id === id);
+  async getService(id: string): Promise<Service> {
+    return apiRequest<Service>(`/services/${id}`);
+  },
+
+  async createService(service: { name: string; price: number; duration: number }): Promise<Service> {
+    return apiRequest<Service>('/services', {
+      method: 'POST',
+      body: JSON.stringify(service),
+    });
+  },
+
+  async updateService(id: string, service: { name?: string; price?: number; duration?: number }): Promise<Service> {
+    return apiRequest<Service>(`/services/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(service),
+    });
+  },
+
+  async deleteService(id: string): Promise<{ message: string }> {
+    return apiRequest<{ message: string }>(`/services/${id}`, {
+      method: 'DELETE',
+    });
   },
 
   // Barbers
   async getBarbers(): Promise<Barber[]> {
-    await simulateNetworkDelay();
-    maybeThrowError('getBarbers');
-    return barbers;
+    return apiRequest<Barber[]>('/barbers');
   },
 
-  async getBarber(id: string): Promise<Barber | undefined> {
-    await simulateNetworkDelay();
-    maybeThrowError('getBarber');
-    return barbers.find(b => b.id === id);
+  async getBarber(id: string): Promise<Barber> {
+    return apiRequest<Barber>(`/barbers/${id}`);
   },
 
-  // Products
+  // Products - Full CRUD operations
   async getProducts(): Promise<Product[]> {
-    await simulateNetworkDelay();
-    maybeThrowError('getProducts');
-    return products;
+    return apiRequest<Product[]>('/products');
   },
 
-  async getProduct(id: string): Promise<Product | undefined> {
-    await simulateNetworkDelay();
-    maybeThrowError('getProduct');
-    return products.find(p => p.id === id);
+  async getProduct(id: string): Promise<Product> {
+    return apiRequest<Product>(`/products/${id}`);
   },
 
-  // Bookings
+  async createProduct(product: { name: string; description: string; price: number }): Promise<Product> {
+    return apiRequest<Product>('/products', {
+      method: 'POST',
+      body: JSON.stringify(product),
+    });
+  },
+
+  async updateProduct(id: string, product: { name?: string; description?: string; price?: number }): Promise<Product> {
+    return apiRequest<Product>(`/products/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(product),
+    });
+  },
+
+  async deleteProduct(id: string): Promise<{ message: string }> {
+    return apiRequest<{ message: string }>(`/products/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Appointments - Full CRUD operations
+  async getAppointments(): Promise<Appointment[]> {
+    return apiRequest<Appointment[]>('/appointments');
+  },
+
+  async getAppointment(id: string): Promise<Appointment> {
+    return apiRequest<Appointment>(`/appointments/${id}`);
+  },
+
+  async createAppointment(appointment: CreateAppointmentData): Promise<Appointment> {
+    return apiRequest<Appointment>('/appointments', {
+      method: 'POST',
+      body: JSON.stringify(appointment),
+    });
+  },
+
+  async updateAppointment(id: string, appointment: UpdateAppointmentData): Promise<Appointment> {
+    return apiRequest<Appointment>(`/appointments/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(appointment),
+    });
+  },
+
+  async deleteAppointment(id: string): Promise<{ message: string }> {
+    return apiRequest<{ message: string }>(`/appointments/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Legacy Bookings (for backward compatibility)
   async getBookings(): Promise<Booking[]> {
-    await simulateNetworkDelay();
-    maybeThrowError('getBookings');
-    return bookings;
+    return apiRequest<Booking[]>('/bookings');
   },
 
   async createBooking(booking: Omit<Booking, 'id' | 'createdAt'>): Promise<Booking> {
-    await simulateNetworkDelay();
-    maybeThrowError('createBooking');
-    
-    const newBooking: Booking = {
-      ...booking,
-      id: `booking_${Date.now()}`,
-      createdAt: new Date().toISOString(),
-    };
-    
-    bookings.push(newBooking);
-    return newBooking;
+    return apiRequest<Booking>('/bookings', {
+      method: 'POST',
+      body: JSON.stringify(booking),
+    });
+  },
+
+  async updateBooking(id: string, booking: Partial<Booking>): Promise<Booking> {
+    return apiRequest<Booking>(`/bookings/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(booking),
+    });
+  },
+
+  async deleteBooking(id: string): Promise<void> {
+    return apiRequest<void>(`/bookings/${id}`, {
+      method: 'DELETE',
+    });
   },
 
   // Orders
   async getOrders(): Promise<Order[]> {
-    await simulateNetworkDelay();
-    maybeThrowError('getOrders');
-    return orders;
+    return apiRequest<Order[]>('/orders');
   },
 
   async createOrder(order: Omit<Order, 'id' | 'createdAt'>): Promise<Order> {
-    await simulateNetworkDelay();
-    maybeThrowError('createOrder');
-    
-    const newOrder: Order = {
-      ...order,
-      id: `order_${Date.now()}`,
-      createdAt: new Date().toISOString(),
-    };
-    
-    orders.push(newOrder);
-    return newOrder;
+    return apiRequest<Order>('/orders', {
+      method: 'POST',
+      body: JSON.stringify(order),
+    });
+  },
+
+  async updateOrder(id: string, order: Partial<Order>): Promise<Order> {
+    return apiRequest<Order>(`/orders/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(order),
+    });
   },
 
   // Customers
   async getCustomers(): Promise<Customer[]> {
-    await simulateNetworkDelay();
-    maybeThrowError('getCustomers');
-    return customers;
+    return apiRequest<Customer[]>('/customers');
+  },
+
+  async getCustomer(id: string): Promise<Customer> {
+    return apiRequest<Customer>(`/customers/${id}`);
+  },
+
+  async createCustomer(customer: Omit<Customer, 'id'>): Promise<Customer> {
+    return apiRequest<Customer>('/customers', {
+      method: 'POST',
+      body: JSON.stringify(customer),
+    });
   },
 
   // Reviews
   async getReviews(): Promise<Review[]> {
-    await simulateNetworkDelay();
-    maybeThrowError('getReviews');
-    return reviews;
+    return apiRequest<Review[]>('/reviews');
+  },
+
+  async createReview(review: Omit<Review, 'id' | 'createdAt'>): Promise<Review> {
+    return apiRequest<Review>('/reviews', {
+      method: 'POST',
+      body: JSON.stringify(review),
+    });
   },
 
   // Availability
   async getAvailableSlots(date: string, serviceId: string, barberId?: string): Promise<string[]> {
-    await simulateNetworkDelay();
-    maybeThrowError('getAvailableSlots');
+    const params = new URLSearchParams({
+      date,
+      serviceId,
+      ...(barberId && { barberId }),
+    });
     
-    // Mock available slots for demonstration
-    const slots = [];
-    for (let hour = 9; hour < 19; hour++) {
-      for (let minute of [0, 30]) {
-        const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-        // Randomly make some slots unavailable
-        if (Math.random() > 0.3) {
-          slots.push(time);
-        }
-      }
-    }
-    
-    return slots;
+    return apiRequest<string[]>(`/availability?${params}`);
   },
 
   // Search
@@ -143,28 +318,36 @@ export const apiClient = {
     barbers: Barber[];
     products: Product[];
   }> {
-    await simulateNetworkDelay(400);
-    maybeThrowError('search');
-    
-    const lowerQuery = query.toLowerCase();
-    
-    return {
-      services: services.filter(s => 
-        s.name.toLowerCase().includes(lowerQuery) ||
-        s.description.toLowerCase().includes(lowerQuery) ||
-        s.category.toLowerCase().includes(lowerQuery)
-      ),
-      barbers: barbers.filter(b => 
-        b.name.toLowerCase().includes(lowerQuery) ||
-        b.title.toLowerCase().includes(lowerQuery) ||
-        b.specialties.some(spec => spec.toLowerCase().includes(lowerQuery))
-      ),
-      products: products.filter(p => 
-        p.name.toLowerCase().includes(lowerQuery) ||
-        p.description.toLowerCase().includes(lowerQuery) ||
-        p.brand.toLowerCase().includes(lowerQuery) ||
-        p.category.toLowerCase().includes(lowerQuery)
-      ),
-    };
+    const params = new URLSearchParams({ q: query });
+    return apiRequest<{
+      services: Service[];
+      barbers: Barber[];
+      products: Product[];
+    }>(`/search?${params}`);
+  },
+
+  // Authentication
+  async login(credentials: LoginCredentials): Promise<AuthResponse> {
+    return apiRequest<AuthResponse>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    });
+  },
+
+  async register(credentials: RegisterCredentials): Promise<AuthResponse> {
+    return apiRequest<AuthResponse>('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    });
+  },
+
+  async getMe(): Promise<User> {
+    return apiRequest<User>('/auth/me');
+  },
+
+  async logout(): Promise<void> {
+    return apiRequest<void>('/auth/logout', {
+      method: 'POST',
+    });
   },
 };

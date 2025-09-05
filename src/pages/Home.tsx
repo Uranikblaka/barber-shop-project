@@ -1,20 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Star, Calendar, Award, Users, ArrowRight, Scissors, Shield, Clock } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Calendar, Award, ArrowRight, Scissors, Shield, Clock } from 'lucide-react';
 import { Button } from '../components/ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
+import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Rating } from '../components/ui/Rating';
 import { Avatar } from '../components/ui/Avatar';
 import { Skeleton } from '../components/ui/Skeleton';
 import { apiClient } from '../lib/api';
 import { formatPrice } from '../lib/utils';
-import type { Service, Barber, Product, Review } from '../types';
+import type { Barber, Review, ServiceDisplay, ProductDisplay } from '../types';
 
 export function Home() {
-  const [services, setServices] = useState<Service[]>([]);
+  const [services, setServices] = useState<ServiceDisplay[]>([]);
   const [barbers, setBarbers] = useState<Barber[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductDisplay[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -29,9 +29,34 @@ export function Home() {
           apiClient.getReviews(),
         ]);
         
-        setServices(servicesData.filter(s => s.featured));
+        // Transform services to include required display fields
+        const displayServices: ServiceDisplay[] = servicesData.map(service => ({
+          ...service,
+          description: service.description || `${service.name} - Professional ${service.name.toLowerCase()} service`,
+          category: service.category || 'Haircut',
+          image: service.image || 'https://images.pexels.com/photos/1813272/pexels-photo-1813272.jpeg',
+          featured: service.featured || false,
+          durationMin: service.duration
+        }));
+        setServices(displayServices.filter(s => s.featured));
         setBarbers(barbersData.filter(b => b.featured));
-        setProducts(productsData.filter(p => p.featured));
+        // Transform products to include required display fields
+        const displayProducts: ProductDisplay[] = productsData.map(product => ({
+          ...product,
+          originalPrice: undefined,
+          category: 'Tools',
+          brand: 'BarberCraft',
+          image: 'https://images.pexels.com/photos/1813272/pexels-photo-1813272.jpeg',
+          images: ['https://images.pexels.com/photos/1813272/pexels-photo-1813272.jpeg'],
+          inStock: true,
+          stockCount: 10,
+          rating: 4.5,
+          reviewCount: 0,
+          featured: true,
+          ingredients: undefined,
+          howToUse: undefined
+        }));
+        setProducts(displayProducts);
         setReviews(reviewsData.slice(0, 3));
       } catch (error) {
         console.error('Error fetching data:', error);
