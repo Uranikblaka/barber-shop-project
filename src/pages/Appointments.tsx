@@ -6,6 +6,8 @@ import { Input } from '../components/ui/Input';
 import { Badge } from '../components/ui/Badge';
 import { Modal } from '../components/ui/Modal';
 import { Skeleton } from '../components/ui/Skeleton';
+import { LoadingSpinner } from '../components/ui/LoadingSpinner';
+import { useToast } from '../components/ui/Toast';
 import { AdminOnly, UserOnly } from '../components/RoleGuard';
 import { apiClient } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -33,6 +35,7 @@ export function Appointments() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const { user, isAuthenticated } = useAuth();
+  const { addToast } = useToast();
 
   // Load appointments and services on component mount
   useEffect(() => {
@@ -83,9 +86,18 @@ export function Appointments() {
     try {
       await apiClient.deleteAppointment(id);
       setAppointments(appointments.filter(appointment => appointment.id !== id));
+      addToast({
+        type: 'success',
+        title: 'Appointment deleted',
+        description: 'The appointment has been successfully removed.'
+      });
     } catch (error) {
       console.error('Error deleting appointment:', error);
-      alert('Failed to delete appointment. Please try again.');
+      addToast({
+        type: 'error',
+        title: 'Delete failed',
+        description: 'Failed to delete appointment. Please try again.'
+      });
     }
   };
 
@@ -135,6 +147,11 @@ export function Appointments() {
         // Create new appointment
         const newAppointment = await apiClient.createAppointment(formData);
         setAppointments([...appointments, newAppointment]);
+        addToast({
+          type: 'success',
+          title: 'Appointment booked!',
+          description: 'Your appointment has been successfully scheduled.'
+        });
       }
 
       setIsModalOpen(false);
@@ -145,7 +162,11 @@ export function Appointments() {
       if (error.message?.includes('time slot is already booked')) {
         setFormErrors({ time: 'This time slot is already booked' });
       } else {
-        alert('Failed to save appointment. Please try again.');
+        addToast({
+          type: 'error',
+          title: 'Booking failed',
+          description: 'Failed to save appointment. Please try again.'
+        });
       }
     } finally {
       setIsSubmitting(false);
@@ -405,8 +426,9 @@ export function Appointments() {
               <Button
                 type="submit"
                 disabled={isSubmitting}
+                loading={isSubmitting}
               >
-                {isSubmitting ? 'Saving...' : editingAppointment ? 'Update Appointment' : 'Book Appointment'}
+                {editingAppointment ? 'Update Appointment' : 'Book Appointment'}
               </Button>
             </div>
           </form>

@@ -6,6 +6,7 @@ import { Input } from '../components/ui/Input';
 import { Badge } from '../components/ui/Badge';
 import { Modal } from '../components/ui/Modal';
 import { Skeleton } from '../components/ui/Skeleton';
+import { useToast } from '../components/ui/Toast';
 import { apiClient } from '../lib/api';
 import { formatPrice } from '../lib/utils';
 import type { Product } from '../types';
@@ -29,6 +30,7 @@ export function Products() {
   });
   const [formErrors, setFormErrors] = useState<Partial<ProductFormData>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { addToast } = useToast();
 
   // Load products on component mount
   useEffect(() => {
@@ -73,9 +75,18 @@ export function Products() {
     try {
       await apiClient.deleteProduct(id);
       setProducts(products.filter(product => product.id !== id));
+      addToast({
+        type: 'success',
+        title: 'Product deleted',
+        description: 'The product has been successfully removed.'
+      });
     } catch (error) {
       console.error('Error deleting product:', error);
-      alert('Failed to delete product. Please try again.');
+      addToast({
+        type: 'error',
+        title: 'Delete failed',
+        description: 'Failed to delete product. Please try again.'
+      });
     }
   };
 
@@ -118,6 +129,11 @@ export function Products() {
         // Create new product
         const newProduct = await apiClient.createProduct(formData);
         setProducts([...products, newProduct]);
+        addToast({
+          type: 'success',
+          title: editingProduct ? 'Product updated!' : 'Product created!',
+          description: `${formData.name} has been successfully ${editingProduct ? 'updated' : 'added'}.`
+        });
       }
 
       setIsModalOpen(false);
@@ -125,7 +141,11 @@ export function Products() {
       setFormErrors({});
     } catch (error) {
       console.error('Error saving product:', error);
-      alert('Failed to save product. Please try again.');
+      addToast({
+        type: 'error',
+        title: 'Save failed',
+        description: 'Failed to save product. Please try again.'
+      });
     } finally {
       setIsSubmitting(false);
     }

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
 import { Input } from '../components/ui/Input';
 import { Badge } from '../components/ui/Badge';
 import { Skeleton } from '../components/ui/Skeleton';
+import { useToast } from '../components/ui/Toast';
 import { apiClient } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { formatPrice } from '../lib/utils';
@@ -40,6 +41,7 @@ export function Booking() {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { addToast } = useToast();
 
   // Load services on component mount
   useEffect(() => {
@@ -131,12 +133,21 @@ export function Booking() {
     try {
       await apiClient.createAppointment(formData);
       setStep(3);
+      addToast({
+        type: 'success',
+        title: 'Appointment booked!',
+        description: 'Your appointment has been successfully scheduled.'
+      });
     } catch (error: any) {
       console.error('Error booking appointment:', error);
       if (error.message?.includes('time slot is already booked')) {
         setErrors({ time: 'This time slot is already booked. Please select another time.' });
       } else {
-        alert('Failed to book appointment. Please try again.');
+        addToast({
+          type: 'error',
+          title: 'Booking failed',
+          description: 'Failed to book appointment. Please try again.'
+        });
       }
     } finally {
       setIsSubmitting(false);
@@ -336,9 +347,10 @@ export function Booking() {
                       <Button
                         onClick={handleBooking}
                         disabled={!formData.date || !formData.time || isSubmitting}
+                        loading={isSubmitting}
                         className="flex-1"
                       >
-                        {isSubmitting ? 'Booking...' : 'Book Appointment'}
+                        Book Appointment
                       </Button>
                     </div>
                   </CardContent>

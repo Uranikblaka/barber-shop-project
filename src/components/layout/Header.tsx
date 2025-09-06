@@ -6,6 +6,7 @@ import { Input } from '../ui/Input';
 import { Avatar } from '../ui/Avatar';
 import { useTheme } from './ThemeProvider';
 import { useAuth } from '../../contexts/AuthContext';
+import { useToast } from '../ui/Toast';
 import { cn } from '../../lib/utils';
 
 export function Header() {
@@ -18,6 +19,7 @@ export function Header() {
   const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -61,6 +63,11 @@ export function Header() {
 
   const handleLogout = () => {
     logout();
+    addToast({
+      type: 'success',
+      title: 'Logged out successfully',
+      description: 'You have been signed out of your account.'
+    });
     navigate('/');
     setIsUserMenuOpen(false);
   };
@@ -120,6 +127,7 @@ export function Header() {
               size="sm"
               onClick={() => setIsSearchOpen(!isSearchOpen)}
               className="h-9 w-9 p-0"
+              aria-label="Search"
             >
               <Search className="h-4 w-4" />
             </Button>
@@ -135,6 +143,7 @@ export function Header() {
                 setTheme(nextTheme);
               }}
               className="h-9 w-9 p-0"
+              aria-label={`Switch to ${theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light'} theme`}
             >
               <ThemeIcon className="h-4 w-4" />
             </Button>
@@ -145,9 +154,10 @@ export function Header() {
               size="sm"
               onClick={() => navigate('/cart')}
               className="relative h-9 w-9 p-0"
+              aria-label="Shopping cart (2 items)"
             >
               <ShoppingBag className="h-4 w-4" />
-              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-accent text-accent-foreground text-xs flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-accent text-accent-foreground text-xs flex items-center justify-center" aria-hidden="true">
                 2
               </span>
             </Button>

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { apiClient, setAuthState, clearAuthState } from '../lib/api';
+import { useToast } from '../components/ui/Toast';
 import type { User, LoginCredentials, RegisterCredentials, AuthContextType } from '../types';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -12,6 +13,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { addToast } = useToast();
 
   const isAuthenticated = !!user && !!token;
 
@@ -67,8 +69,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Store in localStorage
       localStorage.setItem('auth_token', response.token);
       localStorage.setItem('auth_user', JSON.stringify(response.user));
+      
+      addToast({
+        type: 'success',
+        title: 'Welcome back!',
+        description: `Logged in as ${response.user.username}`
+      });
     } catch (error) {
       console.error('Login error:', error);
+      addToast({
+        type: 'error',
+        title: 'Login failed',
+        description: error instanceof Error ? error.message : 'Please check your credentials and try again.'
+      });
       throw error;
     } finally {
       setIsLoading(false);
@@ -89,8 +102,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Store in localStorage
       localStorage.setItem('auth_token', response.token);
       localStorage.setItem('auth_user', JSON.stringify(response.user));
+      
+      addToast({
+        type: 'success',
+        title: 'Account created!',
+        description: `Welcome to BarberCraft, ${response.user.username}!`
+      });
     } catch (error) {
       console.error('Registration error:', error);
+      addToast({
+        type: 'error',
+        title: 'Registration failed',
+        description: error instanceof Error ? error.message : 'Please try again.'
+      });
       throw error;
     } finally {
       setIsLoading(false);

@@ -71,6 +71,9 @@ export function Modal({
     <div
       ref={overlayRef}
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={title ? 'modal-title' : undefined}
       onClick={handleOverlayClick}
     >
       <div
@@ -80,21 +83,23 @@ export function Modal({
           sizes[size],
           className
         )}
+        role="document"
       >
         {title && (
           <div className="flex items-center justify-between p-6 border-b">
-            <h2 className="text-xl font-semibold">{title}</h2>
+            <h2 id="modal-title" className="text-xl font-semibold">{title}</h2>
             <Button
               variant="ghost"
               size="sm"
               onClick={onClose}
               className="h-8 w-8 p-0"
+              aria-label="Close modal"
             >
               <X className="h-4 w-4" />
             </Button>
           </div>
         )}
-        <div className="p-6">
+        <div className="p-6" tabIndex={-1}>
           {children}
         </div>
       </div>

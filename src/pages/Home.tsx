@@ -129,7 +129,7 @@ export function Home() {
               <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl">
                 <img
                   src="https://images.pexels.com/photos/1813272/pexels-photo-1813272.jpeg"
-                  alt="Professional barber at work"
+                  alt="Professional barber cutting client's hair with precision and care"
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />

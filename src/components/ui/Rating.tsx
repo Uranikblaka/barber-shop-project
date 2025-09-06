@@ -24,7 +24,7 @@ export function Rating({
   };
 
   return (
-    <div className={cn('flex items-center gap-1', className)}>
+    <div className={cn('flex items-center gap-1', className)} role="img" aria-label={`${rating} out of ${maxRating} stars`}>
       {Array.from({ length: maxRating }, (_, i) => (
         <Star
           key={i}
@@ -36,6 +36,7 @@ export function Rating({
               ? 'fill-accent/50 text-accent'
               : 'text-muted-foreground'
           )}
+          aria-hidden="true"
         />
       ))}
       {showValue && (

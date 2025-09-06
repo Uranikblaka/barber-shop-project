@@ -1,6 +1,6 @@
 // Environment configuration
 export const ENV_CONFIG = {
-  API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'https://hot-hildy-blaka-6ae80de0.koyeb.app/api',
+  API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api',
   DEBUG_API: import.meta.env.VITE_DEBUG_API === 'true',
   API_TIMEOUT: parseInt(import.meta.env.VITE_API_TIMEOUT || '10000'),
   NODE_ENV: import.meta.env.MODE,

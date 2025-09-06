@@ -6,6 +6,7 @@ import { Input } from '../components/ui/Input';
 import { Badge } from '../components/ui/Badge';
 import { Modal } from '../components/ui/Modal';
 import { Skeleton } from '../components/ui/Skeleton';
+import { useToast } from '../components/ui/Toast';
 import { apiClient } from '../lib/api';
 import { formatPrice } from '../lib/utils';
 import type { Service } from '../types';
@@ -29,6 +30,7 @@ export function Services() {
   });
   const [formErrors, setFormErrors] = useState<Partial<ServiceFormData>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { addToast } = useToast();
 
   // Load services on component mount
   useEffect(() => {
@@ -73,9 +75,18 @@ export function Services() {
     try {
       await apiClient.deleteService(id);
       setServices(services.filter(service => service.id !== id));
+      addToast({
+        type: 'success',
+        title: 'Service deleted',
+        description: 'The service has been successfully removed.'
+      });
     } catch (error) {
       console.error('Error deleting service:', error);
-      alert('Failed to delete service. Please try again.');
+      addToast({
+        type: 'error',
+        title: 'Delete failed',
+        description: 'Failed to delete service. Please try again.'
+      });
     }
   };
 
@@ -118,6 +129,11 @@ export function Services() {
         // Create new service
         const newService = await apiClient.createService(formData);
         setServices([...services, newService]);
+        addToast({
+          type: 'success',
+          title: editingService ? 'Service updated!' : 'Service created!',
+          description: `${formData.name} has been successfully ${editingService ? 'updated' : 'added'}.`
+        });
       }
 
       setIsModalOpen(false);
@@ -125,7 +141,11 @@ export function Services() {
       setFormErrors({});
     } catch (error) {
       console.error('Error saving service:', error);
-      alert('Failed to save service. Please try again.');
+      addToast({
+        type: 'error',
+        title: 'Save failed',
+        description: 'Failed to save service. Please try again.'
+      });
     } finally {
       setIsSubmitting(false);
     }
